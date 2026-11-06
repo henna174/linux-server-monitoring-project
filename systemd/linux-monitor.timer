@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Linux Monitoring Every 10 Seconds
+
+[Timer]
+OnBootSec=15sec
+OnUnitActiveSec=10sec
+AccuracySec=1sec
+
+[Install]
+WantedBy=timers.target

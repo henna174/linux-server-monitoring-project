@@ -1,0 +1,7 @@
+*.pem
+*.key
+*.backup
+*.bak
+*.log
+status.json
+*.tmp

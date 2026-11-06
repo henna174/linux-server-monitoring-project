@@ -1,0 +1,6 @@
+[Unit]
+Description=Linux Server Metrics Collection
+
+[Service]
+Type=oneshot
+ExecStart=/opt/linux-monitor/metrics.sh
