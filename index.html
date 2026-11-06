@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Server Monitoring</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #101827;
+    color: #e5e7eb;
+}
+
+header {
+    background: #172337;
+    padding: 24px 6%;
+    border-bottom: 1px solid #29384d;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 25px;
+}
+
+header p {
+    color: #94a3b8;
+}
+
+main {
+    max-width: 1150px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.status {
+    color: #4ade80;
+    background: #123629;
+    padding: 10px 16px;
+    border-radius: 8px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #1c293c;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #304158;
+}
+
+.card h3 {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+.value {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.bar {
+    height: 9px;
+    background: #344256;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    width: 0%;
+    background: #38bdf8;
+    transition: width .4s;
+}
+
+.details {
+    margin-top: 25px;
+}
+
+.details p {
+    padding: 14px;
+    background: #1c293c;
+    border-radius: 8px;
+}
+
+footer {
+    text-align: center;
+    color: #94a3b8;
+    padding: 25px;
+}
+
+.error {
+    color: #f87171;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Linux Server Monitoring Dashboard</h1>
+    <p>Server Administration | Monitoring | Automation</p>
+</header>
+
+<main>
+
+<div class="top">
+    <div>
+        <h2 id="hostname">Loading Server...</h2>
+        <p id="os">Operating system information</p>
+    </div>
+    <div class="status" id="serverStatus">
+        Checking Server...
+    </div>
+</div>
+
+<div class="grid">
+
+    <div class="card">
+        <h3>CPU Usage</h3>
+        <div class="value" id="cpu">--%</div>
+        <div class="bar"><div class="fill" id="cpuBar"></div></div>
+    </div>
+
+    <div class="card">
+        <h3>RAM Usage</h3>
+        <div class="value" id="ram">--%</div>
+        <div class="bar"><div class="fill" id="ramBar"></div></div>
+    </div>
+
+    <div class="card">
+        <h3>Disk Usage</h3>
+        <div class="value" id="disk">--%</div>
+        <div class="bar"><div class="fill" id="diskBar"></div></div>
+    </div>
+
+    <div class="card">
+        <h3>Nginx Service</h3>
+        <div class="value" id="nginx">Checking...</div>
+        <p>Web Server Status</p>
+    </div>
+
+</div>
+
+<div class="details">
+    <h2>Server Information</h2>
+    <p><b>Hostname:</b> <span id="hostInfo">--</span></p>
+    <p><b>Operating System:</b> <span id="osInfo">--</span></p>
+    <p><b>Uptime:</b> <span id="uptime">--</span></p>
+    <p><b>Last Updated:</b> <span id="updated">--</span></p>
+</div>
+
+</main>
+
+<footer>
+    Linux Server Administration Project | AlmaLinux 10.2
+</footer>
+
+<script>
+async function updateDashboard() {
+    try {
+        const response = await fetch('status.json?t=' + Date.now());
+
+        if (!response.ok) {
+            throw new Error("Unable to load server metrics");
+        }
+
+        const data = await response.json();
+
+        document.getElementById('hostname').textContent = data.hostname;
+        document.getElementById('hostInfo').textContent = data.hostname;
+        document.getElementById('os').textContent = data.os;
+        document.getElementById('osInfo').textContent = data.os;
+        document.getElementById('uptime').textContent = data.uptime;
+        document.getElementById('updated').textContent = data.updated;
+
+        document.getElementById('cpu').textContent = data.cpu + '%';
+        document.getElementById('ram').textContent = data.ram + '%';
+        document.getElementById('disk').textContent = data.disk + '%';
+
+        document.getElementById('cpuBar').style.width = data.cpu + '%';
+        document.getElementById('ramBar').style.width = data.ram + '%';
+        document.getElementById('diskBar').style.width = data.disk + '%';
+
+        const nginx = document.getElementById('nginx');
+        nginx.textContent = data.nginx.toUpperCase();
+        nginx.style.color = data.nginx === 'active'
+            ? '#4ade80' : '#f87171';
+
+        const server = document.getElementById('serverStatus');
+        server.textContent = data.nginx === 'active'
+            ? '● SERVER ONLINE' : '● NGINX DOWN';
+
+        server.style.color = data.nginx === 'active'
+            ? '#4ade80' : '#f87171';
+
+    } catch (error) {
+        document.getElementById('serverStatus').textContent =
+            '● DATA UNAVAILABLE';
+        document.getElementById('serverStatus').className = 'error';
+        console.error(error);
+    }
+}
+
+updateDashboard();
+setInterval(updateDashboard, 10000);
+</script>
+
+</body>
+</html>
